@@ -7,93 +7,66 @@ a simplified sample of data for classification model training purpose
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import os
 
 from timeit import default_timer as timer
 from sklearn.decomposition import PCA
 from joblib import dump, load
 from scipy import stats
 
-DATA_PATH = "HAPT Data Set"
+data_path = "HAPT Data Set/"
+save_path = "graph/"
 
-start = timer()
+start     = timer()
 
 """ Data Loading
 
 Load our data for analysis
 """
-X_train = np.loadtxt(DATA_PATH + '/Train/X_train.txt', delimiter=' ')
-Y_train = np.loadtxt(DATA_PATH + '/Train/y_train.txt')
-X_test = np.loadtxt(DATA_PATH + '/Test/X_test.txt', delimiter=' ')
-Y_test = np.loadtxt(DATA_PATH + '/Test/y_test.txt')
-# train_size = int(X_tr.shape[0]*0.8)
-# X_train = X_tr[0:train_size]
-# Y_train = Y_tr[0:train_size]
-# X_val = X_tr[train_size:]
-# Y_val = Y_tr[train_size:]
+X_train = np.loadtxt(data_path + 'Train/X_train.txt', delimiter=' ')
+Y_train = np.loadtxt(data_path + 'Train/y_train.txt')
+X_test  = np.loadtxt(data_path + 'Test/X_test.txt', delimiter=' ')
+Y_test  = np.loadtxt(data_path + 'Test/y_test.txt')
 
 
-def DisplayCorr(data, seg):
+"""PCA and visualization
 
-    data_pd = pd.DataFrame(data)
-    corr_matrix = data_pd.corr()
-
-
-#    sns.heatmap(corr_matrix)
-    corr = np.zeros((corr_matrix.shape[0]))
-
-    for i in range(len(data[0,:])):
-        temp = 0
-        for j in range(corr_matrix.shape[0]):
-            if abs(corr_matrix.iat[i,j]) > 0.75:
-                temp +=1
-        corr[i] = temp
-
-
-    plt.bar(range(len(corr)), corr)
-    plt.xlabel("decriptor ID")
-    plt.ylabel("nb of correlation")
-    plt.title("correlation for " + seg)
-    plt.show()
-
-#    print(stats.ttest_1samp(data_pd,0.0))
-
-#    print(corr_matrix[40].sort_values(ascending = False))
-
-"""PCA
-
-Apply a PCA to know how much explanation we can have with 4 super-parameters
+Apply a PCA and make differents graph of it
 """
-# pca = PCA(n_components = 0.95)
-#     pca.fit_transform(X)
-# #    print(pca.explained_variance_ratio_)
-# #    print(pca.components_.T[:,0])
-#     mean = np.zeros((len(pca.components_[0,:])))
-#     for i in range(len(pca.components_[0,:])):
-#         for j in range(len(pca.components_[:,0])):
-#             mean[i] += pca.components_[j,i] * pca.explained_variance_ratio_[j]
-#         mean[i] = mean[i] / len(pca.components_[:,0])
-#    print(mean)
-#    print(pca.singular_values_)
+pca = PCA(n_components = 0.95)
+pca.fit_transform(X_train)
 
-# pca_mean = np.zeros((4, SIZE))
-# pca_mean[0, :] = PrincipalComponentAnalysis(X_EST)
-# pca_mean[1, :] = PrincipalComponentAnalysis(X_ACT)
-# pca_mean[2, :] = PrincipalComponentAnalysis(X_AUTO_15)
-# pca_mean[3, :] = PrincipalComponentAnalysis(X_AUTO_20)
-#
-# mean = np.zeros((SIZE))
-# for i in range(SIZE):
-#     mean[i] = np.mean(abs(pca_mean[:, i]))
-#
-# mean_sum = mean.sum()
-# for i in range(SIZE):
-#     mean[i] = (mean[i]/mean_sum)*100
-#
-# plt.bar(range(1,len(mean)+1), mean, align='center', alpha=0.5)
-# plt.xlabel("Descriptors")
-# plt.ylabel('Explanation')
-# plt.title('PCA explanation by descriptors')
-#
-# plt.show()
+plt.bar(np.arange(1,len(pca.explained_variance_ratio_)+1), pca.explained_variance_ratio_, align='center', alpha=0.5)
+plt.xlabel("Components")
+plt.ylabel("Explanation")
+plt.title("Explanation by components for 0.95 variance explained PCA")
+plt.savefig( os.path.join( save_path, f'PCA_95.png' ) )
+plt.clf()
+
+maj_bar       = []
+nb_components = 0
+while nb_components < len(pca.explained_variance_ratio_) :
+    if pca.explained_variance_ratio_[nb_components] >= 0.01 :
+        maj_bar.append(pca.explained_variance_ratio_[nb_components])
+    nb_components += 1
+
+print(maj_bar)
+
+plt.bar(np.arange(1,len(maj_bar)+1), maj_bar, align='center', alpha=0.5, label=np.sum(maj_bar))
+plt.xlabel("Components")
+plt.ylabel("Explanation")
+plt.title("Components with more than 0.01 variance explained")
+plt.legend()
+plt.savefig( os.path.join( save_path, f'PCA_95_sup_01.png' ) )
+plt.clf()
+
+plt.plot(np.cumsum(pca.explained_variance_ratio_))
+plt.xlabel("Components")
+plt.ylabel("Explanation")
+plt.title("Evolution of variance explained")
+plt.savefig( os.path.join( save_path, f'PCA_95_evolution.png' ) )
+plt.clf()
+
 
 compute_time = timer() - start
+print("Time: " + str(compute_time))
