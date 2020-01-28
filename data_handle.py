@@ -23,10 +23,10 @@ start     = timer()
 
 Load our data for analysis
 """
-X_train = np.loadtxt(data_path + 'Train/X_train.txt', delimiter=' ')
-Y_train = np.loadtxt(data_path + 'Train/y_train.txt')
-X_test  = np.loadtxt(data_path + 'Test/X_test.txt', delimiter=' ')
-Y_test  = np.loadtxt(data_path + 'Test/y_test.txt')
+X_train   = np.loadtxt(data_path + 'Train/X_train.txt', delimiter=' ')
+Y_train   = np.loadtxt(data_path + 'Train/y_train.txt')
+X_test    = np.loadtxt(data_path + 'Test/X_test.txt', delimiter=' ')
+Y_test    = np.loadtxt(data_path + 'Test/y_test.txt')
 
 
 """PCA and visualization
