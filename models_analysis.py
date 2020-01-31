@@ -1,9 +1,9 @@
 """model_analysis.py
 
 this script is designed to analyse models previously trained with model.py
-As we are using classification, roc curves and confusion matrix are good indicators
+As we are using classification, auc and accuracy are good indicators
 of efficiency.
-A part of the study is on the best parameters for our models and wich one is better
+A part of the study could be on the best parameters for our models and wich one is better, we will not do it here
 """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -29,6 +29,21 @@ save_path_graph   = "graph/"
 
 start             = timer()
 cv                = []
+
+
+""" Auto Label
+
+function used to labelise bar in bar chart
+"""
+def autolabel(rects):
+    """Attach a text label above each bar in *rects*, displaying its height."""
+    for rect in rects:
+        height = rect.get_height()
+        ax.annotate('{}'.format(height),
+                    xy=(rect.get_x() + rect.get_width() / 2, height),
+                    xytext=(0, 3),  # 3 points vertical offset
+                    textcoords="offset points",
+                    ha='center', va='bottom')
 
 
 """ Data Loading
@@ -86,8 +101,8 @@ for i in range(3) :
 
 
 
-roc      = [np.mean(logistic[:,0]), np.mean(random_forest[:,0]), np.mean(svc[:,0])]
-accuracy = [np.mean(logistic[:,1]), np.mean(random_forest[:,1]), np.mean(svc[:,1])]
+roc      = np.array([np.mean(logistic[:,0]), np.mean(random_forest[:,0]), np.mean(svc[:,0])], dtype = np.float16)
+accuracy = np.array([np.mean(logistic[:,1]), np.mean(random_forest[:,1]), np.mean(svc[:,1])], dtype = np.float16)
 
 fig, ax  = plt.subplots()
 rects1   = ax.bar(x - width/2, roc, width, label='AUC')
@@ -99,6 +114,8 @@ ax.set_title('Scores for models')
 ax.set_xticks(x)
 ax.set_xticklabels(models)
 ax.legend()
+autolabel(rects1)
+autolabel(rects2)
 plt.savefig( os.path.join( save_path_graph, f'models_auc_accuracy.png' ) )
 plt.clf()
 

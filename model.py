@@ -50,10 +50,10 @@ counter        = 0
 
 for train, validate in kf.split(X_train):
     for i, (model, param) in enumerate(zip(models, params)):
-        best_m = GridSearchCV(model, param, cv = 5, n_jobs = 6)
-        best_m.fit(X_train[train], Y_train[train])
+        grid_model = GridSearchCV(model, param, cv = 5, n_jobs = 6)
+        grid_model.fit(X_train[train], Y_train[train])
 
-        dump(params, save_path_model + "models_" + str(i) + "_epoch_" + str(counter + 1) + ".pkl")
+        dump(grid_model, save_path_model + "models_" + str(i) + "_epoch_" + str(counter + 1) + ".pkl")
     counter    = counter + 1
     print("Done " + str(counter) + "/" + str(kfold_size))
 
