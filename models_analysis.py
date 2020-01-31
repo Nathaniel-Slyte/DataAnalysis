@@ -64,11 +64,7 @@ X_test  = pca.fit_transform(X_test)
 Load our models for analysis.
 """
 for i in range(3) :
-    for j in range(kfold_size):
-        cv.append(load(save_path_model + "models_" + str(i) + "_epoch_" + str(j+1) + ".pkl"))
-        # print(cv[i+j].predict_proba(X_test))
-        # print(cv[i+j].score(X_test,Y_test))
-
+    cv.append(load(save_path_model + "models_" + str(i) + ".pkl"))
 
 
 """ model analysis
@@ -79,30 +75,27 @@ models        = ["LogisticRegression", "RandomForest", "SVM"]
 x             = np.arange(len(models))  # the label locations
 width         = 0.35  # the width of the bars
 
-logistic      = np.zeros((kfold_size, 2))
-random_forest = np.zeros((kfold_size, 2))
-svc           = np.zeros((kfold_size, 2))
+logistic      = np.zeros((2))
+random_forest = np.zeros((2))
+svc           = np.zeros((2))
 
 for i in range(3) :
-    for j in range(kfold_size):
-        Y_score = np.array(cv[i+j].predict_proba(X_test))
+    Y_score = np.array(cv[i].predict_proba(X_test))
 
-        if i == 0:
-            logistic[j,0]      = roc_auc_score(Y_test, Y_score, multi_class = 'ovo')
-            logistic[j,1]      = accuracy_score(Y_test, Y_score.argmax(axis=1))
+    if i == 0:
+        logistic[0]      = roc_auc_score(Y_test, Y_score, multi_class = 'ovo')
+        logistic[1]      = accuracy_score(Y_test, Y_score.argmax(axis=1))
 
-        if i == 1:
-            random_forest[j,0] = roc_auc_score(Y_test, Y_score, multi_class = 'ovo')
-            random_forest[j,1] = accuracy_score(Y_test, Y_score.argmax(axis=1))
+    if i == 1:
+        random_forest[0] = roc_auc_score(Y_test, Y_score, multi_class = 'ovo')
+        random_forest[1] = accuracy_score(Y_test, Y_score.argmax(axis=1))
 
-        if i == 2:
-            svc[j,0]           = roc_auc_score(Y_test, Y_score, multi_class = 'ovo')
-            svc[j,1]           = accuracy_score(Y_test, Y_score.argmax(axis=1))
+    if i == 2:
+        svc[0]           = roc_auc_score(Y_test, Y_score, multi_class = 'ovo')
+        svc[1]           = accuracy_score(Y_test, Y_score.argmax(axis=1))
 
-
-
-roc      = np.array([np.mean(logistic[:,0]), np.mean(random_forest[:,0]), np.mean(svc[:,0])], dtype = np.float16)
-accuracy = np.array([np.mean(logistic[:,1]), np.mean(random_forest[:,1]), np.mean(svc[:,1])], dtype = np.float16)
+roc      = np.array([logistic[0], random_forest[0], svc[0]], dtype = np.float16)
+accuracy = np.array([logistic[1], random_forest[1], svc[1]], dtype = np.float16)
 
 fig, ax  = plt.subplots()
 rects1   = ax.bar(x - width/2, roc, width, label='AUC')

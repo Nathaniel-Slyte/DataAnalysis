@@ -41,21 +41,18 @@ X_train = pca.fit_transform(X_train)
 
 """ Nested Cross-validation
 
-Do a nested cross-validation, with a cross-validation gridsearch, and save all the models for analysis
+Do a cross-validation, with a cross-validation gridsearch, and save all the models for analysis
 """
 params         = [{"C":[0.001, 0.01, 0.1, 0.5, 1, 5, 10, 100, 1000], "penalty":("l1", "l2"), "max_iter":[1000, 10000, 100000]}, {"n_estimators":[50, 100, 200], "max_depth":[2, 3, 5], "min_samples_leaf":[0.1, 0.2, 0.3]}, {"C":[0.001, 0.01, 0.1, 1, 10, 100], "max_iter":[1000, 10000, 100000, 1000000]}]
 models         = [LogisticRegression(random_state = 42, solver = "liblinear"), RandomForestClassifier(random_state = 42), SVC(random_state = 42, kernel = "linear", probability = True)]
-kf             = KFold(kfold_size)
-counter        = 0
 
-for train, validate in kf.split(X_train):
-    for i, (model, param) in enumerate(zip(models, params)):
-        grid_model = GridSearchCV(model, param, cv = 5, n_jobs = 6)
-        grid_model.fit(X_train[train], Y_train[train])
 
-        dump(grid_model, save_path_model + "models_" + str(i) + "_epoch_" + str(counter + 1) + ".pkl")
-    counter    = counter + 1
-    print("Done " + str(counter) + "/" + str(kfold_size))
+for i, (model, param) in enumerate(zip(models, params)):
+    grid_model = GridSearchCV(model, param, cv = 5, n_jobs = 6)
+    grid_model.fit(X_train[:], Y_train[:])
+
+    dump(grid_model, save_path_model + "models_" + str(i) + ".pkl")
+print("Done ")
 
 
 compute_time = timer() - start
